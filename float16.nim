@@ -108,7 +108,9 @@ proc toHexAuto*(f64: float64): string =
 # Exponent width: 5 bits
 # Significand precision: 11 bits (10 explicitly stored)
 
-type Float16* = uint16
+type Float16* = distinct uint16
+
+proc `and`(f16: Float16, b: Float16 or uint16): uint16 = f16.uint16 and b.uint16
 
 proc float32To16*(f: float32): Float16 =
   var u32 = cast[uint32](f)
@@ -151,7 +153,12 @@ proc float16To32*(f: Float16): float32 =
 
   result = cast[float32](sgnf32 or expf32 or manf32)
 
-proc float32*(f16: Float16): float32 = result = float16To32(f16)
-proc toF64*(f16: Float16): float64 = result = float64(f16.float32)
-proc toFloat*(f16: Float16): float = result = float(f16.float32)
+proc float32*(f16: Float16): float32 = float16To32(f16)
+proc toF64*(f16: Float16): float64 = float64(f16.float32)
+proc toFloat*(f16: Float16): float = float(f16.float32)
+proc `$`*(f16: Float16): string = $(f16.float32)
 
+proc `*`*(a, b: Float16): Float16 = (a.float32 * b.float32).float16
+proc `+`*(a, b: Float16): Float16 = (a.float32 + b.float32).float16
+proc `-`*(a, b: Float16): Float16 = (a.float32 - b.float32).float16
+proc `/`*(a, b: Float16): Float16 = (a.float32 / b.float32). float16
